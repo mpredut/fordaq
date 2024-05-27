@@ -1,0 +1,62 @@
+
+    
+# Define the width of the blur region at the junction
+blur_width = 10  # Adjustable parameter for smoothing
+
+# Load all images and masks
+
+import cv2
+import numpy as np
+
+def extract_region(image, mask):
+    return cv2.bitwise_and(image, image, mask=mask)
+
+mask_paths = [f"mask/mask_{i}.png" for i in range(1, 6)]
+image_paths = [f"cadre/{i}.jpg" for i in range(1, 6)]
+
+# Load the mask images
+mask_4 = cv2.imread(mask_paths[3], cv2.IMREAD_GRAYSCALE)
+mask_5 = cv2.imread(mask_paths[4], cv2.IMREAD_GRAYSCALE)
+
+masks = [cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE) for mask_path in mask_paths]
+images = [cv2.imread(image_path) for image_path in image_paths]
+
+
+# Load the corresponding original images
+image_4 = cv2.imread(image_paths[3])
+image_5 = cv2.imread(image_paths[4])
+
+# Use the previously calculated vertical shift value (412 pixels)
+shift_value = 412
+
+# Extract regions from images using the masks
+region_4 = extract_region(image_4, mask_4)
+region_5 = extract_region(image_5, mask_5)
+
+# Create a new region from image 5 using only the first 'shift_value' lines
+new_region_5 = region_5[:shift_value]
+
+# Stack the new region 5 and the entire region 4 vertically
+combined_image = np.vstack((new_region_5, region_4))
+
+cv2.imwrite("combined_image.jpg", combined_image)
+
+# Define the width of the blur region at the junction
+blur_width = 20  # Adjust this value as needed for a smoother transition
+height, width, _ = combined_image.shape
+transition_zone_start = shift_value - blur_width // 2
+transition_zone_end = shift_value + blur_width // 2
+
+# Apply a Gaussian blur to the transition zone to smooth the junction
+transition_zone = combined_image[transition_zone_start:transition_zone_end]
+blurred_transition = cv2.GaussianBlur(transition_zone, (0, 0), sigmaX=15, sigmaY=15)
+
+# Replace the transition zone in the combined image with the blurred region
+combined_image[transition_zone_start:transition_zone_end] = blurred_transition
+
+# Save the final combined image
+cv2.imwrite("combined_image_smoothed.jpg", combined_image)
+
+# Path to the final combined image with smoothing
+combined_image_smoothed_path = "combined_image_smoothed.jpg"
+print("Smoothed combined image saved to:", combined_image_smoothed_path)
