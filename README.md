@@ -1,0 +1,2 @@
+•	In industrial settings, objects like wooden planks on production role may not always move at a constant speed or in a straight line. Variations can occur due to machinery inconsistencies, conveyor belt slippage, or obstacles.
+•	These changes can disrupt simple tracking systems, which assume linear movement. If the speed or direction varies significantly, it could result in tracking errors, causing misalignment in automated processes or inaccurate measurements.
